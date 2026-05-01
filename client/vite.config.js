@@ -5,6 +5,9 @@ export default defineConfig({
   plugins: [react()],
   preview: {
     host: '0.0.0.0',
-    allowedHosts: 'all'
+    allowedHosts: [
+      'team-task-manager-client-production-4432.up.railway.app',
+      'localhost'
+    ]
   }
 })

@@ -8,10 +8,14 @@ import {
   verifyRefreshToken,
 } from "../utils/tokens.js";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const cookieOptions = {
   httpOnly: true,
-  sameSite: "lax",
-  secure: process.env.NODE_ENV === "production",
+  // In production the frontend and backend are often on different domains.
+  // sameSite="none" + secure=true is required for cross-site cookies.
+  sameSite: isProd ? "none" : "lax",
+  secure: isProd,
 };
 
 const setRefreshCookie = (res, token) => {

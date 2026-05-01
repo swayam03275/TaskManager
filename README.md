@@ -88,14 +88,26 @@ Create a file named `.env` inside the `/server` folder:
 # The port the Express server will run on (Default usually 4000)
 PORT=4000
 
-# Your MongoDB Connection String. (Can be local or Atlas)
-MONGO_URI=mongodb://localhost:27017/teamtaskmanager
+# MongoDB connection string (local or Atlas)
+MONGODB_URI=mongodb://localhost:27017/team_task_manager
 
-# A random secure string to encrypt JSON Web Tokens
-JWT_SECRET=my_super_secret_jwt_signature_key_2026
+# JWT secrets (use long random strings in production)
+JWT_ACCESS_SECRET=replace_me_access_secret
+JWT_REFRESH_SECRET=replace_me_refresh_secret
 
-# Token expiration times (Optional, but good to have)
-JWT_EXPIRES_IN=1h
+# Token expiration settings
+JWT_ACCESS_EXPIRES=15m
+JWT_REFRESH_EXPIRES=7d
+
+# Allowed frontend origin(s) for CORS.
+# You can set a single origin OR a comma-separated list.
+# Local example:
+# CLIENT_ORIGIN=http://localhost:5173
+# Production example (Vercel + Railway):
+# CLIENT_ORIGIN=https://your-frontend.vercel.app
+# Multiple:
+# CLIENT_ORIGIN=http://localhost:5173,https://your-frontend.vercel.app
+CLIENT_ORIGIN=http://localhost:5173
 ```
 
 ### 2. Frontend variables (`client/.env`)
@@ -201,3 +213,89 @@ npm run dev
 ```
 
 Your React app will normally be opened at `http://localhost:5173` and it will securely communicate with your backend at `http://localhost:4000`.
+
+---
+
+## 🚆 Deploy on Railway (Deploy the `add` branch)
+
+This repo is a monorepo (`client/` + `server/`). On Railway, the cleanest setup is **2 services**:
+
+- **Backend Service** (Express API) from `server/`
+- **Frontend Service** (Vite preview hosting) from `client/`
+
+### Step 0 — Make sure you deploy the correct branch
+
+1. Open the GitHub repo.
+2. Confirm branch is **`add`**.
+3. In Railway, choose **branch: `add`** while creating the service.
+
+### Step 1 — Deploy Backend (server)
+
+1. Railway → **New Project** → **Deploy from GitHub Repo**
+2. Select repo: `swayam03275/TaskManager`
+3. Select **Branch**: `add`
+4. Service settings:
+
+- **Root Directory**: `server`
+- **Start Command**: use package script `npm start` (Railway auto-detects) OR explicitly `npm run start`
+
+#### Backend Variables (Railway → Service → Variables)
+
+Add these variables (same names as `server/src/config/env.js` and `server/.env.example`):
+
+```properties
+NODE_ENV=production
+
+MONGODB_URI=<your MongoDB connection string>
+
+JWT_ACCESS_SECRET=<long random string>
+JWT_REFRESH_SECRET=<long random string>
+
+JWT_ACCESS_EXPIRES=15m
+JWT_REFRESH_EXPIRES=7d
+
+# IMPORTANT:
+# Set this to your FRONTEND URL (after frontend deploy, update it).
+# You can also give multiple origins separated by commas.
+CLIENT_ORIGIN=http://localhost:5173
+```
+
+#### Backend verification
+
+After deploy completes, open the backend URL and test:
+
+- `GET /health` → should return `{ "status": "ok" }`
+
+### Step 2 — Deploy Frontend (client)
+
+1. In the same Railway project → **New Service** → **Deploy from GitHub Repo**
+2. Select repo: `swayam03275/TaskManager`
+3. Select **Branch**: `add`
+4. Service settings:
+
+- **Root Directory**: `client`
+- **Build Command**: `npm ci && npm run build`
+- **Start Command**: `npm run preview -- --host 0.0.0.0 --port $PORT`
+
+#### Frontend Variables
+
+```properties
+# Use your Railway backend public URL here.
+VITE_API_URL=https://<your-backend-service>.up.railway.app/api
+```
+
+### Step 3 — Fix CORS for production (must-do)
+
+Once the frontend is deployed, copy its Railway URL and update the backend variable:
+
+```properties
+CLIENT_ORIGIN=https://<your-frontend-service>.up.railway.app
+```
+
+Then redeploy the backend service.
+
+### Common issues (quick fixes)
+
+- **CORS error**: `CLIENT_ORIGIN` must match the exact frontend domain.
+- **Login works but refresh fails**: Ensure `NODE_ENV=production` is set on backend.
+- **Mongo error**: Check `MONGODB_URI` is correct and IP access allowed (Atlas Network Access).

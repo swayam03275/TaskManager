@@ -1,6 +1,7 @@
 {
   "name": "team-task-manager",
   "private": true,
+  "type": "module",
   "workspaces": [
     "server",
     "client"
@@ -8,7 +9,7 @@
   "scripts": {
     "dev": "concurrently -n server,client -c green,cyan \"npm run dev -w server\" \"npm run dev -w client\"",
     "build": "npm run build -w client",
-    "start": "npm run start -w server"
+    "start": "node server-static.js"
   },
   "devDependencies": {
     "concurrently": "^9.0.0"

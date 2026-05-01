@@ -12,6 +12,7 @@ import {
   ensureProjectAccess,
   ensureProjectManage,
 } from "../middleware/projectAccess.js";
+import { requireRole } from "../middleware/requireRole.js";
 import { validate } from "../middleware/validate.js";
 import {
   createProjectValidator,
@@ -47,6 +48,7 @@ router.post(
   memberValidator,
   validate,
   ensureProjectManage,
+  requireRole(["admin"]),
   addMember,
 );
 router.delete(
@@ -54,6 +56,7 @@ router.delete(
   projectIdParam,
   validate,
   ensureProjectManage,
+  requireRole(["admin"]),
   removeMember,
 );
 

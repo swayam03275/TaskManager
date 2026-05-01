@@ -6,6 +6,7 @@ const Team = () => {
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [form, setForm] = useState({
     projectId: "",
     userId: "",
@@ -39,11 +40,14 @@ const Team = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setError(null);
+    setSuccess(null);
     try {
       await addMember(form.projectId, {
         userId: form.userId,
         role: form.role,
       });
+      setSuccess("Member successfully assigned to the project!");
       await load();
     } catch (err) {
       setError(err.response?.data?.message || "Unable to add member");
@@ -68,6 +72,7 @@ const Team = () => {
           <div className="panel">
             <h4 className="fw-bold">Add team member</h4>
             {error && <div className="alert alert-danger">{error}</div>}
+            {success && <div className="alert alert-success">{success}</div>}
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="form-label">Project</label>

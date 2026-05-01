@@ -1,144 +1,203 @@
 # Team Task Manager 🚀
 
-A comprehensive full-stack workflow and project management application built with the MERN stack. Designed to help teams organize projects, manage tasks, and track their pipeline efficiently with role-based access control.
+Welcome to the **Team Task Manager** documentation! This is a complete, full-stack workflow and project management application built with the **MERN** stack (MongoDB, Express.js, React.js, and Node.js).
 
-## ✨ Key Features
+This documentation covers everything you need to know about the project, including its features, internal structure, environment configuration, and detailed API documentation.
 
-- **🔐 Authentication & Authorization:** Secure JWT-based login and signup.
-- **🛡️ Role-Based Access Control (RBAC):** Distinct privileges for Admins and Team Members.
-- **📊 Real-time Dashboard:** Track project status, task counts (To Do, In Progress, Done, Overdue) at a glance.
-- **📁 Project Management:** Create and manage distinct projects, view details, and monitor overall progress.
-- **✅ Task Tracking:** Add tasks to projects, assign them, and update statuses fluidly.
-- **👥 Team Management:** Admin-only views to overview team members and user details.
-- **🌗 Theming:** Built-in Light and Dark mode toggle for better accessibility and user experience.
+---
 
-## 🛠️ Tech Stack
+## 🌟 Comprehensive Feature List
 
-### Frontend (Client)
+1. **Authentication & Security**
+   - **JWT-Based Auth**: Secure login and signup mechanics using JSON Web Tokens.
+   - **Password Strategy**: Passwords are securely hashed before being stored in the database.
+   - **Token Refresh**: Ability to refresh expired sessions securely.
 
-- **Framework:** React 18 with Vite
-- **Styling:** Bootstrap 5, Custom CSS Variables (Light/Dark themes)
-- **Routing:** React Router v6
-- **State Management:** React Context API (AuthContext, ThemeContext)
-- **Network:** Axios
+2. **Role-Based Access Control (RBAC)**
+   - **Admin**: Has full privileges. Can manage all projects, view all users in the system, and upgrade/downgrade roles (Make other users Admin).
+   - **Team Member**: Can be added to projects, view project details, and manage tasks assigned to them.
+   - **Project Manager level details**: Certain actions on projects (like editing descriptions) require you to be explicitly assigned or be an Admin.
 
-### Backend (Server)
+3. **Dynamic Dashboard**
+   - A real-time statistical view of your workflow.
+   - Shows aggregated counts of tasks organized by status: **To Do**, **In Progress**, **Done**, and **Overdue**.
 
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Database:** MongoDB via Mongoose
-- **Security:** Helmet, CORS, bcryptjs, jsonwebtoken
-- **Validation:** express-validator
+4. **Project Management**
+   - Isolate work into specific Projects.
+   - Add detailed descriptions.
+   - Invite users to collaborate by adding them to the Project Team.
 
-## 📂 Project Structure
+5. **Task Tracking**
+   - Create granular tasks within projects.
+   - Assign tasks to specific team members.
+   - Track deadlines and current progress statuses.
 
-```text
-TeamTaskManager/
-├── client/           # React frontend (Vite)
-│   ├── src/
-│   │   ├── api/      # Axios API clients
-│   │   ├── components/# Reusable UI elements (Navbar, StatsCard)
-│   │   ├── context/  # React Context (Auth, Theme)
-│   │   ├── pages/    # Route components (Dashboard, Projects)
-│   │   └── styles/   # Global styles and theme definitions
-├── server/           # Node.js/Express backend
-│   ├── src/
-│   │   ├── config/   # DB and environment configuration
-│   │   ├── controllers/# Route handlers
-│   │   ├── middleware/# Auth, RBAC, and error handling
-│   │   ├── models/   # Mongoose schemas (User, Project, Task)
-│   │   ├── routes/   # Express routers
-│   │   └── validators/# Validation logic
-└── package.json      # Monorepo root package & script definitions
+6. **UI / UX Features**
+   - **Light / Dark Mode**: Built-in seamless toggling.
+   - Fully responsive design using Bootstrap 5.
+
+---
+
+## 🏗️ Detailed Architecture & Directory Structure
+
+This project uses a monorepo setup with a completely separated frontend and backend.
+
+### 🌐 Frontend (`client/`)
+
+Built with **React 18** and **Vite**. It acts as a Single Page Application (SPA).
+
+- `src/api/`: Contains Axios interceptors and functions mapped to backend endpoints. Ex: `authApi.js` handles login/logout requests.
+- `src/components/`: Reusable interface elements. Includes navigation (`Navbar.jsx`) and visual metrics (`StatsCard.jsx`).
+- `src/context/`: Global State Management.
+  - `AuthContext.jsx`: Keeps track of the currently logged-in user and token states.
+  - `ThemeContext.jsx`: Manages the user's preference for Light/Dark mode.
+- `src/pages/`: Dedicated React components representing full views/pages (Dashboard, AdminUsers, ProjectDetail, etc.).
+- `src/routes/`: Contains logic for protected routes (`ProtectedRoute.jsx`), preventing unauthorized access to internal pages.
+- `src/styles/`: Global stylesheets containing CSS variables and theme rules.
+
+### ⚙️ Backend (`server/`)
+
+Built with **Node.js** and **Express.js**. A RESTful API that handles data, logic, and security.
+
+- `src/config/`: Database connection logic (`db.js`) and environment parser (`env.js`).
+- `src/models/`: Mongoose schemas defining how data looks in MongoDB.
+  - `User.js`: Tracks username, email, password, role.
+  - `Project.js`: Tracks project name, description, owner, and team members.
+  - `Task.js`: Tracks task title, status, project reference, assignee, and due dates.
+- `src/controllers/`: The actual logic and brain of the App. Evaluates incoming request parameters and outputs JSON responses.
+- `src/routes/`: Router files tying URLs (like `/api/auth`) to their specific controller methods.
+- `src/middleware/`: Security walls.
+  - `auth.js`: Verifies the JWT token on a request.
+  - `requireRole.js`: Blocks standard members from accessing Admin routes.
+  - `projectAccess.js` / `taskAccess.js`: Verifies a user actually belongs to the project they are trying to view/edit.
+- `src/validators/`: Uses `express-validator` to ensure users don't send blank, malicious, or poorly formatted data.
+- `src/utils/`: Helper functions like error catchers (`asyncHandler.js`), password hashers (`passwords.js`), and token generators (`tokens.js`).
+- `src/seed/`: A helpful script to pre-fill an empty database with sample data.
+
+---
+
+## ⚙️ Environment Variables Setup
+
+Before running the application, you must define the following Environment variables.
+
+### 1. Backend variables (`server/.env`)
+
+Create a file named `.env` inside the `/server` folder:
+
+```properties
+# The port the Express server will run on (Default usually 4000)
+PORT=4000
+
+# Your MongoDB Connection String. (Can be local or Atlas)
+MONGO_URI=mongodb://localhost:27017/teamtaskmanager
+
+# A random secure string to encrypt JSON Web Tokens
+JWT_SECRET=my_super_secret_jwt_signature_key_2026
+
+# Token expiration times (Optional, but good to have)
+JWT_EXPIRES_IN=1h
 ```
 
-## 🚀 Getting Started
+### 2. Frontend variables (`client/.env`)
 
-### Prerequisites
+Create a file named `.env` inside the `/client` folder:
 
-- [Node.js](https://nodejs.org/) (v20 or higher recommended)
-- [MongoDB](https://www.mongodb.com/) (Local instance or MongoDB Atlas URI)
+```properties
+# Points the React frontend to our Node.js backend URL
+VITE_API_URL=http://localhost:4000/api
+```
 
-### Installation & Setup
+---
 
-1. **Clone the repository** (if you haven't already):
+## 🔌 Complete API Documentation
 
-   ```bash
-   git clone <your-repository-url>
-   cd TeamTaskManager
-   ```
+Base URL for all backend requests: `http://localhost:4000/api`
 
-2. **Install dependencies** (installs for both client and server via npm workspaces):
+### 1. Authentication (`/api/auth`)
 
-   ```bash
-   npm install
-   ```
+- `POST /api/auth/signup`
+  - **Desc**: Creates a new user.
+  - **Body**: `{ name, email, password }`
+- `POST /api/auth/login`
+  - **Desc**: Authenticates a user and returns a token.
+  - **Body**: `{ email, password }`
+- `POST /api/auth/refresh`
+  - **Desc**: Issues a new auth token to keep the user logged in.
+- `POST /api/auth/logout`
+  - **Desc**: Destroys the current secure session/cookie.
+- `GET /api/auth/me`
+  - **Desc**: Retrieves the profile details of the current logged-in user. (Headers: `Authorization: Bearer <token>`)
 
-3. **Configure Environment Variables:**
-   - Copy `server/.env.example` to `server/.env` and update variables (`PORT`, `MONGO_URI`, `JWT_SECRET`).
-   - Copy `client/.env.example` to `client/.env` and set `VITE_API_URL`.
+### 2. Dashboard (`/api/dashboard`)
 
-4. **Seed Initial Data (Optional but recommended for testing):**
+- `GET /api/dashboard`
+  - **Desc**: Returns an aggregated set of task counts for the dashboard overview.
+  - **Returns**: `{ toDo: 5, inProgress: 2, done: 10, overdue: 1 }`
 
-   ```bash
-   npm run seed -w server
-   ```
+### 3. Projects (`/api/projects`)
 
-5. **Start the Development Servers:**
-   Runs both the React frontend and Node API simultaneously:
-   ```bash
-   npm run dev
-   ```
+- `GET /api/projects`
+  - **Desc**: Gets an array of all projects the user is authorized to see.
+- `POST /api/projects`
+  - **Desc**: Creates a new project structure.
+  - **Body**: `{ title, description }`
+- `GET /api/projects/:projectId`
+  - **Desc**: Returns full details of a single project, populating member details.
+- `PATCH /api/projects/:projectId`
+  - **Desc**: Modifies project metadata. (Admin/Manager only)
+- `POST /api/projects/:projectId/members`
+  - **Desc**: Adds an existing user to the project team.
+  - **Body**: `{ userId }`
+- `DELETE /api/projects/:projectId/members/:userId`
+  - **Desc**: Kicks a user out of a project.
 
-## 📜 Available Scripts
+### 4. Tasks (`/api/tasks`)
 
-From the root directory, you can run:
+- `GET /api/tasks/projects/:projectId`
+  - **Desc**: Fetches all tasks strictly belonging to the given project.
+- `POST /api/tasks/projects/:projectId`
+  - **Desc**: Creates a task under that project.
+  - **Body**: `{ title, description, status, assignedTo, dueDate }`
+- `PATCH /api/tasks/:taskId`
+  - **Desc**: Updates a task (e.g., shifts status from "To Do" to "Done").
 
-- `npm run dev` - Start concurrently both the Client (Vite) and the Server (nodemon)
-- `npm run build` - Build the production-ready client application
-- `npm run start` - Start the backend API server
-- `npm run seed -w server` - Seed the database with initial user and task data
+### 5. Users Management (`/api/users`) - _ADMIN ONLY_
 
-## 🔗 API Endpoints
+- `GET /api/users`
+  - **Desc**: Returns all registered users on the system platform.
+- `PATCH /api/users/:userId/role`
+  - **Desc**: Elevates a normal member to Admin, or demotes an Admin.
+  - **Body**: `{ role: "admin" | "member" }`
 
-### 🔐 Authentication API (`/api/auth`)
+---
 
-| Method | Endpoint            | Description                                    | Access        |
-| :----- | :------------------ | :--------------------------------------------- | :------------ |
-| `POST` | `/api/auth/signup`  | Register a new user account                    | Public        |
-| `POST` | `/api/auth/login`   | Authenticate user & receive tokens             | Public        |
-| `POST` | `/api/auth/refresh` | Refresh expired authentication token           | Public        |
-| `POST` | `/api/auth/logout`  | Clear authentication cookies/tokens            | Public        |
-| `GET`  | `/api/auth/me`      | Get the currently authenticated user's details | Authenticated |
+## 🚀 Installation & Local Deployment Guide
 
-### 📊 Dashboard API (`/api/dashboard`)
+Follow these sequential steps to run the platform locally on your machine.
 
-| Method | Endpoint         | Description                                                       | Access        |
-| :----- | :--------------- | :---------------------------------------------------------------- | :------------ |
-| `GET`  | `/api/dashboard` | Fetch aggregated task metrics (To Do, In Progress, Done, Overdue) | Authenticated |
+**1. Clone the repository and install dependencies**
 
-### 📁 Projects API (`/api/projects`)
+```bash
+git clone <repository_url>
+cd TeamTaskManager
+npm install  # This installs dependencies for BOTH client and server
+```
 
-| Method   | Endpoint                                   | Description                                  | Access         |
-| :------- | :----------------------------------------- | :------------------------------------------- | :------------- |
-| `GET`    | `/api/projects`                            | List all projects accessible by the user     | Authenticated  |
-| `POST`   | `/api/projects`                            | Create a new project                         | Authenticated  |
-| `GET`    | `/api/projects/:projectId`                 | Get specific project details and its members | Members/Admin  |
-| `PATCH`  | `/api/projects/:projectId`                 | Update project details (name, description)   | Managers/Admin |
-| `POST`   | `/api/projects/:projectId/members`         | Add a new user to the project team           | Managers/Admin |
-| `DELETE` | `/api/projects/:projectId/members/:userId` | Remove a user from the project               | Managers/Admin |
+**2. Configure Environment Setup**
+Set up your `.env` files in `server/` and `client/` as detailed in the "Environment Variables Setup" section above.
 
-### ✅ Tasks API (`/api/tasks`)
+**3. Seed the Database with Dummy Data**
+Instead of starting from zero, you can generate temporary projects, tasks, and an admin user.
 
-| Method  | Endpoint                         | Description                              | Access                  |
-| :------ | :------------------------------- | :--------------------------------------- | :---------------------- |
-| `GET`   | `/api/tasks/projects/:projectId` | List all tasks for a specific project    | Members/Admin           |
-| `POST`  | `/api/tasks/projects/:projectId` | Create a new task within a project       | Members/Admin           |
-| `PATCH` | `/api/tasks/:taskId`             | Update task status, assignee, or details | Assignee/Managers/Admin |
+```bash
+npm run seed -w server
+```
 
-### 👥 Users API (`/api/users`)
+**4. Start the Application**
+Run the backend and frontend simultaneously with one command from the root folder:
 
-| Method  | Endpoint                  | Description                            | Access     |
-| :------ | :------------------------ | :------------------------------------- | :--------- |
-| `GET`   | `/api/users`              | List all users in the system           | Admin only |
-| `PATCH` | `/api/users/:userId/role` | Update user system role (admin/member) | Admin only |
+```bash
+npm run dev
+```
+
+Your React app will normally be opened at `http://localhost:5173` and it will securely communicate with your backend at `http://localhost:4000`.

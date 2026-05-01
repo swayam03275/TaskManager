@@ -9,11 +9,12 @@ import { validate } from "../middleware/validate.js";
 const router = Router();
 const isObjectId = (value) => mongoose.Types.ObjectId.isValid(value);
 
-router.use(requireAuth, requireRole(["admin"]));
+router.use(requireAuth);
 
 router.get("/", listUsers);
 router.patch(
   "/:userId/role",
+  requireRole(["admin"]),
   [param("userId").custom(isObjectId), body("role").isIn(["admin", "member"])],
   validate,
   updateUserRole,

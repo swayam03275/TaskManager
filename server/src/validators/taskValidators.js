@@ -12,8 +12,8 @@ export const createTaskValidator = [
   body("description").optional().isString(),
   body("priority").optional().isIn(["low", "medium", "high"]),
   body("status").optional().isIn(["todo", "in_progress", "done"]),
-  body("assignee").optional().custom(isObjectId),
-  body("dueDate").optional().isISO8601().toDate(),
+  body("assignee").optional({ nullable: true }).custom(isObjectId),
+  body("dueDate").optional({ nullable: true }).isISO8601().toDate(),
 ];
 
 export const updateTaskValidator = [
@@ -21,6 +21,6 @@ export const updateTaskValidator = [
   body("description").optional().isString(),
   body("priority").optional().isIn(["low", "medium", "high"]),
   body("status").optional().isIn(["todo", "in_progress", "done"]),
-  body("assignee").optional().custom(isObjectId),
-  body("dueDate").optional().isISO8601().toDate(),
+  body("assignee").optional({ nullable: true }).custom(isObjectId),
+  body("dueDate").optional({ nullable: true }).isISO8601().toDate(),
 ];

@@ -1,90 +1,86 @@
 Team Task Manager 🚀
 ================================================================================
 
-A comprehensive full-stack workflow and project management application built with the MERN stack. Designed to help teams organize projects, manage tasks, and track their pipeline efficiently with role-based access control.
+Welcome to the Team Task Manager documentation! This is a complete, full-stack workflow and project management application built with the MERN stack (MongoDB, Express.js, React.js, and Node.js). 
 
-✨ Key Features
+This documentation covers everything you need to know about the project, including its features, internal structure, environment configuration, and detailed API documentation.
+
+🌟 Comprehensive Feature List
 --------------------------------------------------------------------------------
-- Authentication & Authorization: Secure JWT-based login and signup.
-- Role-Based Access Control (RBAC): Distinct privileges for Admins and Team Members.
-- Real-time Dashboard: Track project status, task counts (To Do, In Progress, Done, Overdue) at a glance.
-- Project Management: Create and manage distinct projects, view details, and monitor overall progress.
-- Task Tracking: Add tasks to projects, assign them, and update statuses fluidly.
-- Team Management: Admin-only views to overview team members and user details.
-- Theming: Built-in Light and Dark mode toggle for better accessibility and user experience.
+1. Authentication & Security: JWT-Based secure login/signup. Passwords hashed.
+2. Role-Based Access Control (RBAC): 
+   - Admin: Manages all projects, views all users, upgrades/downgrades roles.
+   - Team Member: Interacts with specific projects and tasks.
+3. Dynamic Dashboard: Real-time aggregated counts of tasks organized by status (To Do, In Progress, Done, and Overdue).
+4. Project Management: Create discrete projects, add detailed descriptions, and invite specific users to collaborate.
+5. Task Tracking: Granular tasks assigned to members, trackable by completion statuses.
+6. UI / UX Features: Light / Dark Mode toggling and Bootstrap 5 responsive UI.
 
-🛠️ Tech Stack
+🏗️ Detailed Architecture & Directory Structure
 --------------------------------------------------------------------------------
-Frontend (Client):
-- Framework: React 18 with Vite
-- Styling: Bootstrap 5, Custom CSS Variables (Light/Dark themes)
-- Routing: React Router v6
-- State Management: React Context API (AuthContext, ThemeContext)
-- Network: Axios
+🌐 Frontend (`client/`) - React 18, Vite SPA
+- src/api/ : Axios interceptors mapped to backend endpoints.
+- src/components/ : Reusable elements (Navbar, StatsCard).
+- src/context/ : Global Contexts (AuthContext for user state, ThemeContext).
+- src/pages/ : Main views (Dashboard, AdminUsers, ProjectDetail, etc.).
+- src/routes/ : Protected route barriers.
+- src/styles/ : CSS files managing theme states.
 
-Backend (Server):
-- Runtime: Node.js
-- Framework: Express.js
-- Database: MongoDB via Mongoose
-- Security: Helmet, CORS, bcryptjs, jsonwebtoken
-- Validation: express-validator
+⚙️ Backend (`server/`) - Node.js, Express.js API
+- src/config/ : DB connection (`db.js`) & Env parser.
+- src/models/ : Mongoose Schemas (`User.js`, `Project.js`, `Task.js`).
+- src/controllers/ : Application logic evaluating requests & responding via JSON.
+- src/routes/ : URL routing hitting specific controllers.
+- src/middleware/ : Security layers (`auth.js` for JWT, `requireRole.js` for Admin checks).
+- src/validators/ : `express-validator` checking incoming user payloads.
+- src/utils/ : Helpers (password hashers, token generators).
+- src/seed/ : Seed script for populating fresh DB.
 
-🚀 Getting Started
+⚙️ Environment Variables Setup
 --------------------------------------------------------------------------------
+1. Backend variables (Create `server/.env`)
+   PORT=4000
+   MONGO_URI=mongodb://localhost:27017/teamtaskmanager
+   JWT_SECRET=super_secret_jwt_signature_key_2026
+   JWT_EXPIRES_IN=1h
 
-Prerequisites:
-- Node.js (v20 or higher recommended)
-- MongoDB (Local instance or MongoDB Atlas URI)
+2. Frontend variables (Create `client/.env`)
+   VITE_API_URL=http://localhost:4000/api
 
-Installation & Setup:
-1. Clone the repository
-2. Install dependencies (installs for both client and server via npm workspaces):
-   npm install
-
-3. Configure Environment Variables:
-   - Copy server/.env.example to server/.env and update variables (PORT, MONGO_URI, JWT_SECRET).
-   - Copy client/.env.example to client/.env and set VITE_API_URL.
-
-4. Seed Initial Data (Optional but recommended for testing):
-   npm run seed -w server
-
-5. Start the Development Servers:
-   npm run dev
-
-📜 Available Scripts
+🔌 Complete API Documentation
 --------------------------------------------------------------------------------
-- npm run dev : Start concurrently both the Client (Vite) and the Server (nodemon)
-- npm run build : Build the production-ready client application
-- npm run start : Start the backend API server
-- npm run seed -w server : Seed the database with initial user and task data
+Base URL for all backend requests: `http://localhost:4000/api`
 
-🔗 API Endpoints
+1. Authentication (`/api/auth`)
+- POST /api/auth/signup : Create a new user account. Body: { name, email, password }
+- POST /api/auth/login : Authenticate and return JWT. Body: { email, password }
+- POST /api/auth/refresh : Issue new token.
+- POST /api/auth/logout : Destroy session.
+- GET /api/auth/me : Get profile details of logged-in user.
+
+2. Dashboard (`/api/dashboard`)
+- GET /api/dashboard : Returns task statistic aggregation { toDo, inProgress, done, overdue }.
+
+3. Projects (`/api/projects`)
+- GET /api/projects : Get array of authorized projects.
+- POST /api/projects : Create new project. Body: { title, description }
+- GET /api/projects/:projectId : Return full details & member data of single project.
+- PATCH /api/projects/:projectId : Modify metadata.
+- POST /api/projects/:projectId/members : Add user to project. Body: { userId }
+- DELETE /api/projects/:projectId/members/:userId : Remove user from project.
+
+4. Tasks (`/api/tasks`)
+- GET /api/tasks/projects/:projectId : Fetch tasks tied to specific project.
+- POST /api/tasks/projects/:projectId : Create a task. Body: { title, description, status, assignedTo, dueDate }
+- PATCH /api/tasks/:taskId : Update a task.
+
+5. Users Management (/api/users) - *ADMIN ONLY*
+- GET /api/users : Return all registered platform users.
+- PATCH /api/users/:userId/role : Elevate or demote permissions.
+
+🚀 Installation & Local Deployment Guide
 --------------------------------------------------------------------------------
-Base URL: http://localhost:4000/api
-
-Authentication API (/api/auth)
-- POST /api/auth/signup : Register a new user account (Public)
-- POST /api/auth/login : Authenticate user & receive tokens (Public)
-- POST /api/auth/refresh : Refresh expired authentication token (Public)
-- POST /api/auth/logout : Clear authentication cookies/tokens (Public)
-- GET /api/auth/me : Get the currently authenticated user's details (Authenticated)
-
-Dashboard API (/api/dashboard)
-- GET /api/dashboard : Fetch aggregated task metrics (Authenticated)
-
-Projects API (/api/projects)
-- GET /api/projects : List all projects accessible by the user (Authenticated)
-- POST /api/projects : Create a new project (Authenticated)
-- GET /api/projects/:projectId : Get specific project details and its members (Members/Admin)
-- PATCH /api/projects/:projectId : Update project details (Managers/Admin)
-- POST /api/projects/:projectId/members : Add a new user to the project team (Managers/Admin)
-- DELETE /api/projects/:projectId/members/:userId : Remove a user from the project (Managers/Admin)
-
-Tasks API (/api/tasks)
-- GET /api/tasks/projects/:projectId : List all tasks for a specific project (Members/Admin)
-- POST /api/tasks/projects/:projectId : Create a new task within a project (Members/Admin)
-- PATCH /api/tasks/:taskId : Update task status, assignee, or details (Assignee/Managers/Admin)
-
-Users API (/api/users)
-- GET /api/users : List all users in the system (Admin only)
-- PATCH /api/users/:userId/role : Update user system role (Admin only)
+1. Clone the repository and run `npm install`.
+2. Configure `.env` files in both `server/` and `client/`.
+3. Run `npm run seed -w server` to fill database with testing dummy data.
+4. Run `npm run dev` to start Frontend & Backend simultaneously.

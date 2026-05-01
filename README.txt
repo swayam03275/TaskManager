@@ -40,9 +40,13 @@ This documentation covers everything you need to know about the project, includi
 --------------------------------------------------------------------------------
 1. Backend variables (Create `server/.env`)
    PORT=4000
-   MONGO_URI=mongodb://localhost:27017/teamtaskmanager
-   JWT_SECRET=super_secret_jwt_signature_key_2026
-   JWT_EXPIRES_IN=1h
+   MONGODB_URI=mongodb://localhost:27017/team_task_manager
+   JWT_ACCESS_SECRET=replace_me_access_secret
+   JWT_REFRESH_SECRET=replace_me_refresh_secret
+   JWT_ACCESS_EXPIRES=15m
+   JWT_REFRESH_EXPIRES=7d
+   # Allowed frontend origin(s). Supports comma-separated list.
+   CLIENT_ORIGIN=http://localhost:5173
 
 2. Frontend variables (Create `client/.env`)
    VITE_API_URL=http://localhost:4000/api

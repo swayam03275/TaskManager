@@ -23,7 +23,10 @@ const env = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   jwtAccessExpires: process.env.JWT_ACCESS_EXPIRES,
   jwtRefreshExpires: process.env.JWT_REFRESH_EXPIRES,
-  clientOrigin: process.env.CLIENT_ORIGIN,
+  // Supports a single origin or a comma-separated list.
+  clientOrigin: process.env.CLIENT_ORIGIN.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 };
 
 export default env;

@@ -88,14 +88,26 @@ Create a file named `.env` inside the `/server` folder:
 # The port the Express server will run on (Default usually 4000)
 PORT=4000
 
-# Your MongoDB Connection String. (Can be local or Atlas)
-MONGO_URI=mongodb://localhost:27017/teamtaskmanager
+# MongoDB connection string (local or Atlas)
+MONGODB_URI=mongodb://localhost:27017/team_task_manager
 
-# A random secure string to encrypt JSON Web Tokens
-JWT_SECRET=my_super_secret_jwt_signature_key_2026
+# JWT secrets (use long random strings in production)
+JWT_ACCESS_SECRET=replace_me_access_secret
+JWT_REFRESH_SECRET=replace_me_refresh_secret
 
-# Token expiration times (Optional, but good to have)
-JWT_EXPIRES_IN=1h
+# Token expiration settings
+JWT_ACCESS_EXPIRES=15m
+JWT_REFRESH_EXPIRES=7d
+
+# Allowed frontend origin(s) for CORS.
+# You can set a single origin OR a comma-separated list.
+# Local example:
+# CLIENT_ORIGIN=http://localhost:5173
+# Production example (Vercel + Railway):
+# CLIENT_ORIGIN=https://your-frontend.vercel.app
+# Multiple:
+# CLIENT_ORIGIN=http://localhost:5173,https://your-frontend.vercel.app
+CLIENT_ORIGIN=http://localhost:5173
 ```
 
 ### 2. Frontend variables (`client/.env`)

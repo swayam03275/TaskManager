@@ -1,6 +1,7 @@
 {
   "name": "team-task-manager",
   "private": true,
+  "type": "module",
   "workspaces": [
     "server",
     "client"

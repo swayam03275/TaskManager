@@ -88,3 +88,60 @@ Base URL for all backend requests: `http://localhost:4000/api`
 2. Configure `.env` files in both `server/` and `client/`.
 3. Run `npm run seed -w server` to fill database with testing dummy data.
 4. Run `npm run dev` to start Frontend & Backend simultaneously.
+
+================================================================================
+Deploy on Railway (Deploy the `add` branch)
+================================================================================
+
+This repo is a monorepo (client/ + server/). On Railway, the cleanest setup is 2 services:
+1) Backend Service (Express API) from server/
+2) Frontend Service (Vite hosting) from client/
+
+Step 0 — Deploy the correct branch
+--------------------------------------------------------------------------------
+1. In Railway, while creating each service, select Branch: add
+
+Step 1 — Deploy Backend (server)
+--------------------------------------------------------------------------------
+1. Railway → New Project → Deploy from GitHub Repo
+2. Select repo: swayam03275/TaskManager
+3. Select Branch: add
+4. Set Root Directory: server
+
+Backend Variables (Railway → Backend Service → Variables)
+--------------------------------------------------------------------------------
+NODE_ENV=production
+MONGODB_URI=<your MongoDB connection string>
+JWT_ACCESS_SECRET=<long random string>
+JWT_REFRESH_SECRET=<long random string>
+JWT_ACCESS_EXPIRES=15m
+JWT_REFRESH_EXPIRES=7d
+CLIENT_ORIGIN=http://localhost:5173   (later replace with your frontend Railway URL)
+
+Backend verification:
+- GET /health should return { "status": "ok" }
+
+Step 2 — Deploy Frontend (client)
+--------------------------------------------------------------------------------
+1. In the same Railway project → New Service → Deploy from GitHub Repo
+2. Select repo: swayam03275/TaskManager
+3. Select Branch: add
+4. Set Root Directory: client
+5. Build Command: npm ci && npm run build
+6. Start Command: npm run preview -- --host 0.0.0.0 --port $PORT
+
+Frontend Variables:
+--------------------------------------------------------------------------------
+VITE_API_URL=https://<your-backend-service>.up.railway.app/api
+
+Step 3 — Fix CORS (must-do)
+--------------------------------------------------------------------------------
+After frontend deploys, update Backend variable:
+CLIENT_ORIGIN=https://<your-frontend-service>.up.railway.app
+Then redeploy backend.
+
+Common issues:
+--------------------------------------------------------------------------------
+- CORS error: CLIENT_ORIGIN must match the exact frontend domain.
+- Refresh/login issues: ensure NODE_ENV=production is set on backend.
+- Mongo errors: verify MONGODB_URI and Atlas IP access.
